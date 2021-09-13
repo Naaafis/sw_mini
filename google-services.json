@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "265418080193",
+    "project_id": "calorie-scanner-325815",
+    "storage_bucket": "calorie-scanner-325815.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:265418080193:android:a7ee5b41a474eb8665b940",
+        "android_client_info": {
+          "package_name": "com.helloworld"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "265418080193-q22g1uu9ikukmjoliadn1rdfkv7h3ji5.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAQ-aSFjjr2AOgtUxkOKRTNqoULbtgFN4U"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "265418080193-q22g1uu9ikukmjoliadn1rdfkv7h3ji5.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
