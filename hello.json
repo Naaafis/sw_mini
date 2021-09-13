@@ -1,0 +1,13 @@
+{
+  "error": {
+    "code": "API_KEY_INVALID",
+    "message": "An invalid api_key was supplied. Get one at https://api.nal.usda.gov:443"
+  }
+}<html>
+<head><title>301 Moved Permanently</title></head>
+<body>
+<center><h1>301 Moved Permanently</h1></center>
+<hr><center>nginx/1.21.0</center>
+</body>
+</html>
+{"totalHits":1,"currentPage":1,"totalPages":1,"pageList":[1],"foodSearchCriteria":{"query":"04129105","generalSearchInput":"04129105","pageNumber":1,"numberOfResultsPerPage":50,"pageSize":50,"requireAllWords":false},"foods":[{"fdcId":1706055,"description":"TEA BAGS","lowercaseDescription":"tea bags","dataType":"Branded","gtinUpc":"04129105","publishedDate":"2021-03-19","brandOwner":"Lipton","brandName":"LIPTON","ingredients":"ORANGE PEKOE AND PEKOE CUT BLACK TEA.","marketCountry":"United States","foodCategory":"Tea Bags","allHighlightFields":"<b>GTIN/UPC</b>: <em>04129105</em>","score":-545.89624,"foodNutrients":[{"nutrientId":1003,"nutrientName":"Protein","nutrientNumber":"203","unitName":"G","derivationCode":"LCCS","derivationDescription":"Calculated from value per serving size measure","value":0.0},{"nutrientId":1004,"nutrientName":"Total lipid (fat)","nutrientNumber":"204","unitName":"G","derivationCode":"LCCD","derivationDescription":"Calculated from a daily value percentage per serving size measure","value":0.0},{"nutrientId":1005,"nutrientName":"Carbohydrate, by difference","nutrientNumber":"205","unitName":"G","derivationCode":"LCCD","derivationDescription":"Calculated from a daily value percentage per serving size measure","value":0.0},{"nutrientId":1008,"nutrientName":"Energy","nutrientNumber":"208","unitName":"KCAL","derivationCode":"LCCS","derivationDescription":"Calculated from value per serving size measure","value":0.0},{"nutrientId":1093,"nutrientName":"Sodium, Na","nutrientNumber":"307","unitName":"MG","derivationCode":"LCCD","derivationDescription":"Calculated from a daily value percentage per serving size measure","value":0.0}]}],"aggregations":{"dataType":{"Branded":1},"nutrients":{}}}
