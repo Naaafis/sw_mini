@@ -6,7 +6,36 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { initializeApp } from "firebase/app";
 import { firebase } from '@firebase/app'
 import 'firebase/firestore';
+import { getDatabase, ref, set } from "firebase/database";
+import "firebase/database";
+require('firebase/database');
 
+//require("firebase/database");
+function writeUserData(recipeId, name, cals) {
+  firebase
+    .database()
+    .ref('recipes/' + recipeId)
+    .set({
+      food: name,
+      calories : cals,
+    });
+}
+
+/*componentDidMount() {
+    firebase.database.ref('/recipes').on('value', (snapshot) => {
+      const data = snapshot.val(); 
+      console.log(data.food); 
+      console.log(data.calories); 
+      });
+}*/ 
+
+ function setUpCalsListener(userId) {
+  firebase.database().ref('recipes/' + userId).on('value', (snapshot) => {
+    const calories = snapshot.val().calories;
+    const food = snapshot.val().food;
+    console.log("Food : " + food + "has calories : " + calories);
+  });
+}
 
 
 function HomeScreen({ navigation }) {
@@ -56,7 +85,8 @@ function BarcodeScreen({ navigation }) {
       //console.log(prod_id); 
       current_food = json.foods[0].lowercaseDescription;
       current_cals = json.foods[0].foodNutrients[3].value;
-      console.log(current_food + " : " + current_cals);
+      writeUserData(1, current_food, current_cals); 
+      //console.log(current_food + " : " + current_cals);
       // return json.foods; 
       //console.lJSON.parse(json.food); 
     } catch (error) {
@@ -66,6 +96,8 @@ function BarcodeScreen({ navigation }) {
 
   useEffect(() => {
     (async () => {
+      //getData(); 
+      setUpCalsListener(1); 
       const { status } = await BarCodeScanner.requestPermissionsAsync();
       setHasPermission(status === 'granted');
     })();
@@ -76,20 +108,21 @@ function BarcodeScreen({ navigation }) {
     //  alert(`Bar code with type ${type} and data ${data} has been scanned!`);
     //processing of data depending on barcode type (i.e removing a zero or not))
     //console.log(type); 
-    console.log(type);
+
+   // console.log(type);
     if (type == 'org.gs1.EAN-13') {
 
 
-      console.log('inside');
+      
       prod_id = data.slice(1);
       // setId(parseInt(data, 10)); 
     }
     else {
-      console.log('outside');
+  
       prod_id = data;
       // setId(data); 
     }
-    console.log(prod_id);
+    //console.log(prod_id);
     getDataFromApi(prod_id);
   };
 
@@ -164,10 +197,27 @@ const firebaseConfig = {
   appId: "1:265418080193:web:deb51d7fcc6b5f5c65b940",
   measurementId: "G-0TMLMDC2C0"
 };
-
+//var app = null; 
 // Initialize Firebase
+/*if (!firebase.apps.length) {
+   app = firebase.initializeApp(firebaseConfig);
+}else {
+   app = firebase.app(); // if already initialized, use that one
+}*/ 
 const app = firebase.initializeApp(firebaseConfig);
-const db = app.firestore();
+//const db = app.firestore();
+
+/*function getData() {
+  firebase
+  .database()
+  .ref("recipe1/")
+  .on("value", snapshot => {
+    const cals = snapshot.val().key;
+    console.log("Calories: " + cals); 
+  })
+}*/ 
+
+
 
 //const analytics = getAnalytics(app);
 
