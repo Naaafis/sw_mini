@@ -3,6 +3,11 @@ import { Text, View, StyleSheet, Button } from 'react-native';
 import { BarCodeScanner } from 'expo-barcode-scanner';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { initializeApp } from "firebase/app";
+import { firebase } from '@firebase/app'
+import 'firebase/firestore';
+
+
 
 function HomeScreen({ navigation }) {
   return (
@@ -12,8 +17,18 @@ function HomeScreen({ navigation }) {
         title="Go to Scanner"
         onPress={() => navigation.navigate('Scanner')}
       />
+       <Button
+        title="Recipe information"
+        onPress={() => navigation.navigate('Recipe')}
+      />
     </View>
   );
+}
+
+function RecipeScreen({ navigation }) {
+  return(
+  <Text> Recipes </Text> 
+  ); 
 }
 
 function BarcodeScreen({ navigation }) {
@@ -38,6 +53,7 @@ function BarcodeScreen({ navigation }) {
         })
       });
       let json = await response.json();
+      //console.log(prod_id); 
       current_food = json.foods[0].lowercaseDescription;
       current_cals = json.foods[0].foodNutrients[3].value;
       console.log(current_food + " : " + current_cals);
@@ -120,6 +136,7 @@ function App() {
       <Stack.Navigator>
         <Stack.Screen name="Home" component={HomeScreen} />
         <Stack.Screen name="Scanner" component={BarcodeScreen} />
+        <Stack.Screen name="Recipe" component={RecipeScreen} />
       </Stack.Navigator>
     </NavigationContainer>
 
@@ -136,3 +153,24 @@ const styles = StyleSheet.create({
  });
 
 export default App; 
+
+const firebaseConfig = {
+  apiKey: "AIzaSyDxiWOeQDM2zVpiOGU43gJS-Q4_eNfhlfA",
+  authDomain: "calorie-scanner-325815.firebaseapp.com",
+  projectId: "calorie-scanner-325815",
+  storageBucket: "calorie-scanner-325815.appspot.com",
+  messagingSenderId: "265418080193",
+  databaseURL: "https://calorie-scanner-325815-default-rtdb.firebaseio.com",
+  appId: "1:265418080193:web:deb51d7fcc6b5f5c65b940",
+  measurementId: "G-0TMLMDC2C0"
+};
+
+// Initialize Firebase
+const app = firebase.initializeApp(firebaseConfig);
+const db = app.firestore();
+
+//const analytics = getAnalytics(app);
+
+//const db = getFirestore(app);
+// Get a reference to the database service
+//  var database = firebase.database();
