@@ -8,7 +8,12 @@ import { firebase } from '@firebase/app'
 import 'firebase/firestore';
 import { getDatabase, ref, set } from "firebase/database";
 import "firebase/database";
+import "firebase/auth";
+import * as Google from "expo-google-app-auth";
 require('firebase/database');
+
+
+
 
 //require("firebase/database");
 function writeUserData(recipeId, name, cals) {
@@ -29,7 +34,7 @@ function writeUserData(recipeId, name, cals) {
       });
 }*/ 
 
- function setUpCalsListener(userId) {
+function setUpCalsListener(userId) {
   firebase.database().ref('recipes/' + userId).on('value', (snapshot) => {
     const calories = snapshot.val().calories;
     const food = snapshot.val().food;
@@ -38,10 +43,14 @@ function writeUserData(recipeId, name, cals) {
 }
 
 
-function HomeScreen({ navigation }) {
+function HomeScreen({ route, navigation }) {
+  const { user } = route.params;
+  console.log("user from google", user);
+
   return (
     <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-      <Text>Home Screen</Text>
+      <Text>Profile Screen</Text>
+      <Text>Welcome {user.name} !</Text>
       <Button
         title="Go to Scanner"
         onPress={() => navigation.navigate('Scanner')}
@@ -50,6 +59,33 @@ function HomeScreen({ navigation }) {
         title="Recipe information"
         onPress={() => navigation.navigate('Recipe')}
       />
+    </View>
+  );
+}
+
+
+function LoginScreen({ navigation }) {
+  const signInAsync = async () => {
+    console.log("LoginScreen.js 6 | loggin in");
+    try {
+      const { type, user } = await Google.logInAsync({
+        iosClientId: `340229934150-cktoflno2b7g9d8cj0fmqa2np6kjgg0t.apps.googleusercontent.com`,
+        androidClientId: `<YOUR_ANDROID_CLIENT_ID>`,
+      });
+
+      if (type === "success") {
+        // Then you can use the Google REST API
+        console.log("LoginScreen.js 17 | success, navigating to profile");
+        navigation.navigate("Home", { user });
+      }
+    } catch (error) {
+      console.log("LoginScreen.js 19 | error with login", error);
+    }
+  };
+
+  return (
+    <View style={styles.container}>
+      <Button title="Login with Google" onPress={signInAsync} />
     </View>
   );
 }
@@ -167,6 +203,7 @@ function App() {
   return (
     <NavigationContainer>
       <Stack.Navigator>
+        <Stack.Screen name="Login" component={LoginScreen} />
         <Stack.Screen name="Home" component={HomeScreen} />
         <Stack.Screen name="Scanner" component={BarcodeScreen} />
         <Stack.Screen name="Recipe" component={RecipeScreen} />
@@ -204,7 +241,11 @@ const firebaseConfig = {
 }else {
    app = firebase.app(); // if already initialized, use that one
 }*/ 
-const app = firebase.initializeApp(firebaseConfig);
+
+//
+//const app = firebase.initializeApp(firebaseConfig);
+
+
 //const db = app.firestore();
 
 /*function getData() {
