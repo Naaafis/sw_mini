@@ -16,14 +16,29 @@ require('firebase/database');
 
 
 //require("firebase/database");
-function writeUserData(recipeId, name, cals) {
-  firebase
+function writeUserData(user_name, name, cals) {
+  firebase.database().ref('users/'+ user_name).once("value", snapshot => {
+    if (snapshot.exists())
+    {
+      console.log("exists"); 
+      //update
+       firebase
     .database()
-    .ref('recipes/' + recipeId)
-    .set({
-      food: name,
-      calories : cals,
+    .ref('users/' + user_name)
+    .update({
+      [name]: cals,
     });
+    }
+    else
+    {
+      firebase
+    .database()
+    .ref('users/' + user_name)
+    .set({
+      [name]: cals,
+    });
+    }
+  }); 
 }
 
 /*componentDidMount() {
@@ -46,14 +61,13 @@ function setUpCalsListener(userId) {
 function HomeScreen({ route, navigation }) {
   const { user } = route.params;
   console.log("user from google", user);
-
   return (
     <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
       <Text>Profile Screen</Text>
       <Text>Welcome {user.name} !</Text>
       <Button
         title="Go to Scanner"
-        onPress={() => navigation.navigate('Scanner')}
+        onPress={() => navigation.navigate('Scanner', {user})}
       />
        <Button
         title="Recipe information"
@@ -96,10 +110,12 @@ function RecipeScreen({ navigation }) {
   ); 
 }
 
-function BarcodeScreen({ navigation }) {
+function BarcodeScreen({ route, navigation }) {
   var prod_id = null;
   var current_food = null;
   var current_cals = null;
+   const { user } = route.params;
+   const user_name = user.name; 
   //const [prod_id, setId, getId] = useState(0); 
   const [hasPermission, setHasPermission] = useState(null);
   const [scanned, setScanned] = useState(false);
@@ -121,7 +137,7 @@ function BarcodeScreen({ navigation }) {
       //console.log(prod_id); 
       current_food = json.foods[0].lowercaseDescription;
       current_cals = json.foods[0].foodNutrients[3].value;
-      writeUserData(1, current_food, current_cals); 
+      writeUserData(user_name, current_food, current_cals); 
       //console.log(current_food + " : " + current_cals);
       // return json.foods; 
       //console.lJSON.parse(json.food); 
@@ -243,7 +259,7 @@ const firebaseConfig = {
 }*/ 
 
 //
-//const app = firebase.initializeApp(firebaseConfig);
+const app = firebase.initializeApp(firebaseConfig);
 
 
 //const db = app.firestore();
