@@ -49,11 +49,13 @@ function writeUserData(user_name, name, cals) {
       });
 }*/ 
 
-function setUpCalsListener(userId) {
-  firebase.database().ref('recipes/' + userId).on('value', (snapshot) => {
-    const calories = snapshot.val().calories;
-    const food = snapshot.val().food;
-    console.log("Food : " + food + "has calories : " + calories);
+function setUpCalsListener(user_name) {
+  firebase.database().ref('users/' + user_name).on('value', (snapshot) => {
+    //console.log(snapshot.val()); 
+    return (snapshot.val()); 
+    //const calories = snapshot.val().calories;
+    //const food = snapshot.val().food;
+    //console.log("Food : " + food + "has calories : " + calories);
   });
 }
 
@@ -71,7 +73,7 @@ function HomeScreen({ route, navigation }) {
       />
        <Button
         title="Recipe information"
-        onPress={() => navigation.navigate('Recipe')}
+        onPress={() => navigation.navigate('Recipe', {user})}
       />
     </View>
   );
@@ -104,9 +106,12 @@ function LoginScreen({ navigation }) {
   );
 }
 
-function RecipeScreen({ navigation }) {
+function RecipeScreen({ route, navigation }) {
+   const { user } = route.params;
+   const user_name = user.name;
+   const array = Object.values(setUpCalsListener(user_name)); 
   return(
-  <Text> Recipes </Text> 
+  <Text> Recipes Show </Text> 
   ); 
 }
 
@@ -149,7 +154,6 @@ function BarcodeScreen({ route, navigation }) {
   useEffect(() => {
     (async () => {
       //getData(); 
-      setUpCalsListener(1); 
       const { status } = await BarCodeScanner.requestPermissionsAsync();
       setHasPermission(status === 'granted');
     })();
