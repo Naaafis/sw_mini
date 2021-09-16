@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'; //use effect does something after render 
-import { Text, View, StyleSheet, Button } from 'react-native';
+import { Text, View, StyleSheet, Button, TextInput } from 'react-native';
 import { BarCodeScanner } from 'expo-barcode-scanner';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
@@ -10,6 +10,7 @@ import { getDatabase, ref, set } from "firebase/database";
 import "firebase/database";
 import "firebase/auth";
 import * as Google from "expo-google-app-auth";
+import NumericInput from 'react-native-numeric-input'
 require('firebase/database');
 
 
@@ -59,6 +60,27 @@ function setUpCalsListener(user_name) {
   });
 }
 
+function ServingsScreen({route, navigation}) {
+  const { user } = route.params;
+
+  let size = 1;
+
+  return(
+    <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+      
+      <Text>Serving Size Screen</Text>
+
+      <Text>Enter the servings for this ingredients please, {user.name} ...</Text>
+
+      <NumericInput type='up-down' onChange={value => size} />
+
+      <Button
+        title="Go to Scanner"
+        onPress={() => navigation.navigate('Scanner', { user: user , servings: size})}
+      />
+    </View>
+  );
+}
 
 function HomeScreen({ route, navigation }) {
   const { user } = route.params;
@@ -69,7 +91,7 @@ function HomeScreen({ route, navigation }) {
       <Text>Welcome {user.name} !</Text>
       <Button
         title="Go to Scanner"
-        onPress={() => navigation.navigate('Scanner', {user})}
+        onPress={() => navigation.navigate('Scanner', {user: user, servings: 1})}
       />
        <Button
         title="Recipe information"
@@ -106,12 +128,39 @@ function LoginScreen({ navigation }) {
   );
 }
 
+let recipeName = '';
+
+
 function RecipeScreen({ route, navigation }) {
+
+  const [value, onChangeText] = React.useState('click to add recipeName')
+
+  function textChangeHandler(event) {
+    onChangeText(event.target.value)
+    recipeName = event.target.value;
+  }
+  
+
    const { user } = route.params;
    const user_name = user.name;
-   const array = Object.values(setUpCalsListener(user_name)); 
+   //.values(setUpCalsListener(user_name)); 
   return(
-  <Text> Recipes Show </Text> 
+  <View style = {styles.screenLeft}>
+    <Text> {user_name} Recipes Show </Text>
+
+    <TextInput
+        style={{height: 40, borderColor: 'white', borderWidth: 0, color:'#595959', fontSize:20, marginHorizontal:5}}
+        onChange={textChangeHandler}
+        value = {value}
+      />
+
+      <Button
+        title="Add Serving Size"
+        onPress={() => navigation.navigate('Servings', { user })}
+      />
+
+  </View>
+  
   ); 
 }
 
@@ -119,7 +168,7 @@ function BarcodeScreen({ route, navigation }) {
   var prod_id = null;
   var current_food = null;
   var current_cals = null;
-   const { user } = route.params;
+   const  {user, servings} = route.params;
    const user_name = user.name; 
   //const [prod_id, setId, getId] = useState(0); 
   const [hasPermission, setHasPermission] = useState(null);
@@ -141,7 +190,7 @@ function BarcodeScreen({ route, navigation }) {
       let json = await response.json();
       //console.log(prod_id); 
       current_food = json.foods[0].lowercaseDescription;
-      current_cals = json.foods[0].foodNutrients[3].value;
+      current_cals = json.foods[0].foodNutrients[3].value * servings;
       writeUserData(user_name, current_food, current_cals); 
       //console.log(current_food + " : " + current_cals);
       // return json.foods; 
@@ -225,6 +274,7 @@ function App() {
       <Stack.Navigator>
         <Stack.Screen name="Login" component={LoginScreen} />
         <Stack.Screen name="Home" component={HomeScreen} />
+        <Stack.Screen name="Servings" component={ServingsScreen} />
         <Stack.Screen name="Scanner" component={BarcodeScreen} />
         <Stack.Screen name="Recipe" component={RecipeScreen} />
       </Stack.Navigator>
@@ -240,6 +290,13 @@ const styles = StyleSheet.create({
      alignItems: 'center',
      justifyContent: 'center',
      },
+
+  screenLeft: {
+    flex: 1,
+    flexDirection: 'column',
+    alignItems: 'stretch',
+    justifyContent: 'flex-start',
+  },
  });
 
 export default App; 
