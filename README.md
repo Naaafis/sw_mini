@@ -7,6 +7,10 @@ For additional documentation: go to Wiki pages
 
 For description on some known issues: go to Issues. 
 
+For a video demonstration of our app: 
+
+https://www.youtube.com/watch?v=kw3MSFq9BD4
+
 ## Sketches and Photos
 Start Page:
 ![Start](./images/Start.png)
