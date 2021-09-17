@@ -14,18 +14,14 @@ import NumericInput from 'react-native-numeric-input'
 require('firebase/database');
 
 
-
-
-//require("firebase/database");
-function writeUserData(user_name, name, cals) {
+function writeUserData(user_name, recipe, name, cals) {
   firebase.database().ref('users/'+ user_name).once("value", snapshot => {
     if (snapshot.exists())
     {
-      console.log("exists"); 
-      //update
+
        firebase
     .database()
-    .ref('users/' + user_name)
+    .ref('users/' + user_name + '/' + recipe)
     .update({
       [name]: cals,
     });
@@ -34,7 +30,7 @@ function writeUserData(user_name, name, cals) {
     {
       firebase
     .database()
-    .ref('users/' + user_name)
+    .ref('users/' + user_name + '/' + recipe)
     .set({
       [name]: cals,
     });
@@ -42,28 +38,19 @@ function writeUserData(user_name, name, cals) {
   }); 
 }
 
-/*componentDidMount() {
-    firebase.database.ref('/recipes').on('value', (snapshot) => {
-      const data = snapshot.val(); 
-      console.log(data.food); 
-      console.log(data.calories); 
-      });
-}*/ 
-
-function setUpCalsListener(user_name) {
-  firebase.database().ref('users/' + user_name).on('value', (snapshot) => {
-    //console.log(snapshot.val()); 
-    return (snapshot.val()); 
-    //const calories = snapshot.val().calories;
-    //const food = snapshot.val().food;
-    //console.log("Food : " + food + "has calories : " + calories);
+const setUpCalsListener = async(user_name) => {
+  
+  await firebase.database().ref('users/' + user_name).on('value', (snapshot) => {
+    console.log(snapshot.val()); 
+   // return snapshot.val().toString();
+    
   });
 }
 
 function ServingsScreen({route, navigation}) {
-  const { user } = route.params;
+  const { user, servings, recipe } = route.params;
+   const [size, setSize] = React.useState(1);
 
-  let size = 1;
 
   return(
     <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
@@ -72,11 +59,11 @@ function ServingsScreen({route, navigation}) {
 
       <Text>Enter the servings for this ingredients please, {user.name} ...</Text>
 
-      <NumericInput type='up-down' onChange={value => size} />
+      <NumericInput type='up-down' onChange= {size => setSize(size)} />
 
       <Button
         title="Go to Scanner"
-        onPress={() => navigation.navigate('Scanner', { user: user , servings: size})}
+        onPress={() => navigation.navigate('Scanner', { user: user , servings: {size} , recipe: recipe.text })}
       />
     </View>
   );
@@ -84,7 +71,6 @@ function ServingsScreen({route, navigation}) {
 
 function HomeScreen({ route, navigation }) {
   const { user } = route.params;
-  console.log("user from google", user);
   return (
     <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
       <Text>Profile Screen</Text>
@@ -104,7 +90,6 @@ function HomeScreen({ route, navigation }) {
 
 function LoginScreen({ navigation }) {
   const signInAsync = async () => {
-    console.log("LoginScreen.js 6 | loggin in");
     try {
       const { type, user } = await Google.logInAsync({
         iosClientId: `340229934150-cktoflno2b7g9d8cj0fmqa2np6kjgg0t.apps.googleusercontent.com`,
@@ -113,7 +98,6 @@ function LoginScreen({ navigation }) {
 
       if (type === "success") {
         // Then you can use the Google REST API
-        console.log("LoginScreen.js 17 | success, navigating to profile");
         navigation.navigate("Home", { user });
       }
     } catch (error) {
@@ -133,30 +117,34 @@ let recipeName = '';
 
 function RecipeScreen({ route, navigation }) {
 
-  const [value, onChangeText] = React.useState('click to add recipeName')
+  //const [value, onChangeText] = React.useState('click to add recipeName')
+  //const text = ''; //=this.state = {text: ''};  
+  const [text, setText] = React.useState('');
+//  const [messages, setMessage] = useState([]); 
+  const [showrec, setshowrec] = useState(false); 
 
-  function textChangeHandler(event) {
-    onChangeText(event.target.value)
-    recipeName = event.target.value;
-  }
-  
 
-   const { user } = route.params;
-   const user_name = user.name;
-   //.values(setUpCalsListener(user_name)); 
+  const { user } = route.params;
+  const user_name = user.name;
+
   return(
-  <View style = {styles.screenLeft}>
-    <Text> {user_name} Recipes Show </Text>
-
-    <TextInput
-        style={{height: 40, borderColor: 'white', borderWidth: 0, color:'#595959', fontSize:20, marginHorizontal:5}}
-        onChange={textChangeHandler}
-        value = {value}
+    <View style = {styles.screenLeft}>
+      <Text> {user_name} Recipes: </Text>
+      <TextInput
+      style = {{height: 40,fontSize: 20}}
+      label="Recipe Name"
+      placeholder="Enter recipe name"
+      value={text}
+      onChangeText={text => setText(text)}
+    />
+      <Button
+        title="Add Serving Size"
+        onPress={() => navigation.navigate('Servings', { user: user , recipe: {text}})}
       />
 
       <Button
-        title="Add Serving Size"
-        onPress={() => navigation.navigate('Servings', { user })}
+        title="Display recipes"
+        onPress={() => setUpCalsListener(user_name)}
       />
 
   </View>
@@ -168,7 +156,7 @@ function BarcodeScreen({ route, navigation }) {
   var prod_id = null;
   var current_food = null;
   var current_cals = null;
-   const  {user, servings} = route.params;
+   const  {user, servings, recipe} = route.params;
    const user_name = user.name; 
   //const [prod_id, setId, getId] = useState(0); 
   const [hasPermission, setHasPermission] = useState(null);
@@ -189,9 +177,10 @@ function BarcodeScreen({ route, navigation }) {
       });
       let json = await response.json();
       //console.log(prod_id); 
+     // console.log(servings); 
       current_food = json.foods[0].lowercaseDescription;
-      current_cals = json.foods[0].foodNutrients[3].value * servings;
-      writeUserData(user_name, current_food, current_cals); 
+      current_cals = json.foods[0].foodNutrients[3].value * servings.size;
+      writeUserData(user_name, recipe, current_food, current_cals); 
       //console.log(current_food + " : " + current_cals);
       // return json.foods; 
       //console.lJSON.parse(json.food); 
@@ -311,34 +300,7 @@ const firebaseConfig = {
   appId: "1:265418080193:web:deb51d7fcc6b5f5c65b940",
   measurementId: "G-0TMLMDC2C0"
 };
-//var app = null; 
-// Initialize Firebase
-/*if (!firebase.apps.length) {
-   app = firebase.initializeApp(firebaseConfig);
-}else {
-   app = firebase.app(); // if already initialized, use that one
-}*/ 
 
-//
 const app = firebase.initializeApp(firebaseConfig);
 
 
-//const db = app.firestore();
-
-/*function getData() {
-  firebase
-  .database()
-  .ref("recipe1/")
-  .on("value", snapshot => {
-    const cals = snapshot.val().key;
-    console.log("Calories: " + cals); 
-  })
-}*/ 
-
-
-
-//const analytics = getAnalytics(app);
-
-//const db = getFirestore(app);
-// Get a reference to the database service
-//  var database = firebase.database();
